@@ -42,6 +42,7 @@ __all__ = [
     "transcribe_audio",
     "analyze_image_url",
     "analyze_image_file",
+    "fetch_image",
     "image_feed_stream",
     "text_feed_stream",
     "__version__",
@@ -805,6 +806,39 @@ class PolliClient:
             return data
         return data.get("choices", [{}])[0].get("message", {}).get("content")
 
+    def fetch_image(
+        self,
+        image_url: str,
+        *,
+        referrer: Optional[str] = None,
+        token: Optional[str] = None,
+        timeout: Optional[float] = 120.0,
+        out_path: Optional[str] = None,
+        chunk_size: int = 1024 * 64,
+    ) -> bytes | str:
+        """Fetch raw image bytes from a direct image URL.
+
+        Returns bytes by default; if out_path is provided, streams to file and returns the path.
+        """
+        params: Dict[str, Any] = {}
+        if referrer:
+            params["referrer"] = referrer
+        if token:
+            params["token"] = token
+
+        if out_path:
+            with self.session.get(image_url, params=params, timeout=timeout or self.timeout, stream=True) as r:
+                r.raise_for_status()
+                with open(out_path, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=chunk_size):
+                        if chunk:
+                            f.write(chunk)
+            return out_path
+
+        resp = self.session.get(image_url, params=params, timeout=timeout or self.timeout)
+        resp.raise_for_status()
+        return resp.content
+
     # ---------- Public feeds (SSE) ----------
 
     def image_feed_stream(
@@ -816,11 +850,16 @@ class PolliClient:
         reconnect: bool = False,
         retry_delay: float = 10.0,
         yield_raw_events: bool = False,
+        include_bytes: bool = False,
+        include_data_url: bool = False,
     ) -> Iterator[Any]:
         """
         Stream the public image feed via SSE.
-        Yields dicts (parsed JSON) or raw JSON strings when yield_raw_events=True.
-        Set reconnect=True to auto-reconnect on errors with retry_delay seconds.
+        - Yields dicts (parsed JSON) or raw JSON strings when yield_raw_events=True.
+        - Set include_bytes=True to attach raw image bytes as 'image_bytes' on each dict.
+        - Set include_data_url=True to attach a base64 data URL as 'image_data_url'.
+          If both include_bytes and include_data_url are True, data_url takes precedence.
+        - Set reconnect=True to auto-reconnect on errors with retry_delay seconds.
         """
         feed_url = "https://image.pollinations.ai/feed"
 
@@ -853,8 +892,21 @@ class PolliClient:
                         yield data
                         continue
                     try:
-                        import json as _json
-                        yield _json.loads(data)
+                        import json as _json, base64 as _b64
+                        ev = _json.loads(data)
+                        if include_data_url or include_bytes:
+                            img_url = ev.get("imageURL") or ev.get("image_url")
+                            if img_url:
+                                r = self.session.get(img_url, timeout=timeout or self.timeout)
+                                r.raise_for_status()
+                                content = r.content
+                                if include_data_url:
+                                    ctype = r.headers.get("Content-Type", "image/jpeg")
+                                    b64 = _b64.b64encode(content).decode("utf-8")
+                                    ev["image_data_url"] = f"data:{ctype};base64,{b64}"
+                                elif include_bytes:
+                                    ev["image_bytes"] = content
+                        yield ev
                     except Exception:
                         # Skip malformed lines
                         continue
@@ -1073,7 +1125,9 @@ def image_feed_stream(
     reconnect: bool = False,
     retry_delay: float = 10.0,
     yield_raw_events: bool = False,
-) -> Iterator[Any]:
+    include_bytes: bool = False,
+    include_data_url: bool = False,
+    ) -> Iterator[Any]:
     """Facade for PolliClient.image_feed_stream()."""
     return _client().image_feed_stream(
         referrer=referrer,
@@ -1082,6 +1136,8 @@ def image_feed_stream(
         reconnect=reconnect,
         retry_delay=retry_delay,
         yield_raw_events=yield_raw_events,
+        include_bytes=include_bytes,
+        include_data_url=include_data_url,
     )
 
 
@@ -1193,7 +1249,7 @@ def analyze_image_file(
     token: Optional[str] = None,
     timeout: Optional[float] = 60.0,
     as_json: bool = False,
-) -> Any:
+    ) -> Any:
     """Facade for PolliClient.analyze_image_file()."""
     return _client().analyze_image_file(
         image_path,
@@ -1204,6 +1260,26 @@ def analyze_image_file(
         token=token,
         timeout=timeout,
         as_json=as_json,
+    )
+
+
+def fetch_image(
+    image_url: str,
+    *,
+    referrer: Optional[str] = None,
+    token: Optional[str] = None,
+    timeout: Optional[float] = 120.0,
+    out_path: Optional[str] = None,
+    chunk_size: int = 1024 * 64,
+) -> bytes | str:
+    """Facade for PolliClient.fetch_image()."""
+    return _client().fetch_image(
+        image_url,
+        referrer=referrer,
+        token=token,
+        timeout=timeout,
+        out_path=out_path,
+        chunk_size=chunk_size,
     )
 
 def save_image_timestamped(
@@ -1331,9 +1407,10 @@ if __name__ == "__main__":
 
     # Real-time public feeds (endless). Uncomment to run.
     # print("\n--- Public Image Feed (endless) ---")
-    # for event in image_feed_stream(reconnect=True):
-    #     # event is a dict with fields like: prompt, imageURL, model, seed
-    #     print("New image:", event.get("prompt"), event.get("imageURL"))
+    # for event in image_feed_stream(reconnect=True, include_bytes=True):
+    #     # event is a dict with fields like: prompt, imageURL, model, seed, image_bytes
+    #     print("New image:", event.get("prompt"), len(event.get("image_bytes") or b""), "bytes")
+    #     # Or include_data_url=True to receive event['image_data_url'] for easy display in browsers
     #     # Optionally break after some items
     #     # break
 
