@@ -1,9 +1,9 @@
 export const ChatMixin = (Base) => class extends Base {
-  async chat_completion(messages, { model = 'openai', seed = null, private_: any = undefined, referrer = null, token = null, asJson = false, timeoutMs = 60_000 } = {}) {
+  async chat_completion(messages, { model = 'openai', seed = null, private_: priv = undefined, referrer = null, token = null, asJson = false, timeoutMs = 60_000 } = {}) {
     if (!Array.isArray(messages) || messages.length === 0) throw new Error('messages must be a non-empty list');
     if (seed == null) seed = this._randomSeed();
     const payload = { model, messages, seed };
-    if (private_ !== undefined) payload.private = !!private_;
+    if (priv !== undefined) payload.private = !!priv;
     if (referrer) payload.referrer = referrer;
     if (token) payload.token = token;
     const url = `${this.textPromptBase}/${model}`;
@@ -18,11 +18,11 @@ export const ChatMixin = (Base) => class extends Base {
     } finally { clearTimeout(t); }
   }
 
-  async *chat_completion_stream(messages, { model = 'openai', seed = null, private_: any = undefined, referrer = null, token = null, timeoutMs = 300_000, yieldRawEvents = false } = {}) {
+  async *chat_completion_stream(messages, { model = 'openai', seed = null, private_: priv = undefined, referrer = null, token = null, timeoutMs = 300_000, yieldRawEvents = false } = {}) {
     if (!Array.isArray(messages) || messages.length === 0) throw new Error('messages must be a non-empty list');
     if (seed == null) seed = this._randomSeed();
     const payload = { model, messages, seed, stream: true };
-    if (private_ !== undefined) payload.private = !!private_;
+    if (priv !== undefined) payload.private = !!priv;
     if (referrer) payload.referrer = referrer;
     if (token) payload.token = token;
     const url = `${this.textPromptBase}/${model}`;
@@ -45,7 +45,7 @@ export const ChatMixin = (Base) => class extends Base {
     } finally { clearTimeout(t); }
   }
 
-  async chat_completion_tools(messages, { tools, functions = {}, tool_choice = 'auto', model = 'openai', seed = null, private_: any = undefined, referrer = null, token = null, asJson = false, timeoutMs = 60_000, max_rounds = 1 } = {}) {
+  async chat_completion_tools(messages, { tools, functions = {}, tool_choice = 'auto', model = 'openai', seed = null, private_: priv = undefined, referrer = null, token = null, asJson = false, timeoutMs = 60_000, max_rounds = 1 } = {}) {
     if (!Array.isArray(messages) || messages.length === 0) throw new Error('messages must be a non-empty list');
     if (!Array.isArray(tools) || tools.length === 0) throw new Error('tools must be a non-empty list');
     if (seed == null) seed = this._randomSeed();
@@ -57,7 +57,7 @@ export const ChatMixin = (Base) => class extends Base {
       let rounds = 0;
       for (;;) {
         const payload = { model, messages: history, seed, tools, tool_choice };
-        if (private_ !== undefined) payload.private = !!private_;
+        if (priv !== undefined) payload.private = !!priv;
         if (referrer) payload.referrer = referrer;
         if (token) payload.token = token;
         const resp = await this.fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal });
@@ -77,7 +77,15 @@ export const ChatMixin = (Base) => class extends Base {
           try { args = typeof argsText === 'string' ? JSON.parse(argsText) : (argsText || {}); } catch { args = {}; }
           let result;
           if (functions && Object.prototype.hasOwnProperty.call(functions, fnName)) {
-            try { result = await functions[fnName](...(Array.isArray(args) ? args : []), ...(Array.isArray(args) ? [] : []), ...(typeof args === 'object' && !Array.isArray(args) ? [args] : [])); } catch (e) { result = { error: `function '${fnName}' raised: ${e}` }; }
+            try {
+              if (Array.isArray(args)) {
+                result = await functions[fnName](...args);
+              } else if (args && typeof args === 'object') {
+                result = await functions[fnName](args);
+              } else {
+                result = await functions[fnName]();
+              }
+            } catch (e) { result = { error: `function '${fnName}' raised: ${e}` }; }
           } else {
             result = { error: `no handler for function '${fnName}'` };
           }
@@ -109,4 +117,3 @@ async function *iterateSSELines(resp) {
   const text = await resp.text();
   for (const line of String(text).split(/\r?\n/)) yield line;
 }
-

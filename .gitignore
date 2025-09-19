@@ -114,3 +114,6 @@ docs/_build/
 
 # Local tooling/binaries (do not commit)
 .tools/
+
+# Temporary output directories
+tmp-*/

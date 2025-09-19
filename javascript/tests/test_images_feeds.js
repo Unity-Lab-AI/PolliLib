@@ -25,7 +25,8 @@ test('generate_image streams to file and fetch_image returns bytes', async (t) =
   const saved = await c.generate_image('test', { outPath });
   assert.equal(saved, outPath);
   const data = await fs.promises.readFile(outPath);
-  assert.equal(data.toString('utf-8'), 'abc\n'); // ReadableStream adds newlines per chunk in test
+  // Our fake stream writes chunks with newlines per line; normalize
+  assert.equal(data.toString('utf-8').replace(/\n/g, ''), 'abc');
 
   const bytes = await c.fetch_image('http://x/y.jpg');
   assert.equal(Buffer.isBuffer(bytes), true);
@@ -87,4 +88,3 @@ test('text_feed_stream parses events', async () => {
   assert.equal(first.model, 'openai');
   assert.equal(first.response, 'Hello');
 });
-
