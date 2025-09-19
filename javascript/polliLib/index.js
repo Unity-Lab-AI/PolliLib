@@ -1,7 +1,7 @@
 // Single import surface + simple facades
 import { PolliClient as _PolliClient } from './client.js';
 
-export const __version__ = '1.0.0';
+export const __version__ = '1.0.1';
 export class PolliClient extends _PolliClient {}
 
 let _defaultClient = null;
