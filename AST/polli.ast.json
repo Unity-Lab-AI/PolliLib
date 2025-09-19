@@ -1,7 +1,7 @@
 {
   "$schema": "https://example.com/schemas/pollilib-ast.schema.json",
   "ast_version": "1.0",
-  "library_version": "0.1.0",
+  "library_version": "1.0.0",
   "project": "PolliLib",
   "languages": ["python", "javascript"],
   "conventions": {
@@ -65,4 +65,3 @@
     { "id": "client", "title": "PolliClient Composition", "ast": "./client.ast.json" }
   ]
 }
-

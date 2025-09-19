@@ -1,6 +1,6 @@
 {
   "name": "pollilib-js",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Modular Pollinations client (JavaScript)",
   "type": "module",
   "main": "polliLib/index.js",
@@ -16,4 +16,3 @@
   "keywords": ["pollinations", "ai", "client"],
   "license": "MIT"
 }
-

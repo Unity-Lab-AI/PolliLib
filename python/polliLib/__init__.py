@@ -43,7 +43,7 @@ __all__ = [
     "__version__",
 ]
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 
 _default_client: Optional[PolliClient] = None
@@ -358,4 +358,3 @@ def text_feed_stream(
         retry_delay=retry_delay,
         yield_raw_events=yield_raw_events,
     )
-

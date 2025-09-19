@@ -1,7 +1,7 @@
 // Single import surface + simple facades
 import { PolliClient as _PolliClient } from './client.js';
 
-export const __version__ = '0.1.0';
+export const __version__ = '1.0.0';
 export class PolliClient extends _PolliClient {}
 
 let _defaultClient = null;
@@ -34,4 +34,3 @@ export async function analyze_image_file(imagePath, opts) { return client().anal
 // Feeds
 export function image_feed_stream(opts) { return client().image_feed_stream(opts); }
 export function text_feed_stream(opts) { return client().text_feed_stream(opts); }
-
