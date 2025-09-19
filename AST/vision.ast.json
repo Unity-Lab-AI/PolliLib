@@ -1,0 +1,36 @@
+{
+  "module": "vision",
+  "python_module": "python/polliLib/vision.py",
+  "javascript_module": "javascript/polliLib/vision.js",
+  "entities": [
+    {
+      "name": "VisionMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "analyze_image_url",
+          "desc": "Analyze a remote image by URL via vision-capable text model.",
+          "python": {
+            "signature": "analyze_image_url(image_url: str, *, question: str = \"What's in this image?\", model: str = 'openai', max_tokens: Optional[int] = 500, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 60.0, as_json: bool = False) -> Any"
+          },
+          "javascript": {
+            "signature": "analyze_image_url(imageUrl: string, {question=\"What's in this image?\", model='openai', max_tokens=500, referrer=null, token=null, timeoutMs=60000, asJson=false}={}) => Promise<any>"
+          },
+          "http": {"method": "POST", "url": "{text_prompt_base}/{model}", "body": "OpenAI-like messages with image_url"}
+        },
+        {
+          "name": "analyze_image_file",
+          "desc": "Analyze a local image file by embedding it as a data URL in the request.",
+          "python": {
+            "signature": "analyze_image_file(image_path: str, *, question: str = \"What's in this image?\", model: str = 'openai', max_tokens: Optional[int] = 500, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 60.0, as_json: bool = False) -> Any"
+          },
+          "javascript": {
+            "signature": "analyze_image_file(imagePath: string, {question=\"What's in this image?\", model='openai', max_tokens=500, referrer=null, token=null, timeoutMs=60000, asJson=false}={}) => Promise<any>"
+          },
+          "file_support": {"extensions": ["jpeg","jpg","png","gif","webp"], "fallback_ext": "jpeg"}
+        }
+      ]
+    }
+  ]
+}
+

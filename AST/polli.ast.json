@@ -1,0 +1,68 @@
+{
+  "$schema": "https://example.com/schemas/pollilib-ast.schema.json",
+  "ast_version": "1.0",
+  "library_version": "0.1.0",
+  "project": "PolliLib",
+  "languages": ["python", "javascript"],
+  "conventions": {
+    "python_param_style": "snake_case",
+    "javascript_param_style": "camelCase",
+    "random_seed_digits": { "min": 5, "max": 8 },
+    "timeout_units": { "python": "seconds", "javascript": "milliseconds" }
+  },
+  "types": {
+    "Model": {
+      "fields": {
+        "name": "string",
+        "description": "string?",
+        "maxInputChars": "number?",
+        "reasoning": "boolean?",
+        "community": "boolean?",
+        "tier": "string?",
+        "aliases": "string[]",
+        "input_modalities": "string[]",
+        "output_modalities": "string[]",
+        "tools": "boolean",
+        "vision": "boolean",
+        "audio": "boolean",
+        "voices": "string[]?",
+        "supportsSystemMessages": "boolean"
+      }
+    },
+    "TextMessage": { "fields": { "role": "'system'|'user'|'assistant'", "content": "string" } },
+    "VisionMessage": {
+      "fields": {
+        "role": "'system'|'user'|'assistant'",
+        "content": "Array<{type:'text',text:string}|{type:'image_url',image_url:{url:string}}|{type:'input_audio',input_audio:{data:string,format:string}} >"
+      }
+    },
+    "ToolSpec": {
+      "fields": {
+        "type": "'function'",
+        "function": "{name:string, description?:string, parameters?:object}"
+      }
+    },
+    "ToolCall": {
+      "fields": {
+        "id": "string?",
+        "function": "{name:string, arguments:string|object}"
+      }
+    },
+    "ImageFeedEvent": {
+      "note": "Server-defined fields, commonly includes prompt and imageURL/image_url",
+      "fields": { "imageURL": "string?", "image_url": "string?", "prompt": "string?", "model": "string?" }
+    },
+    "TextFeedEvent": { "note": "Server-defined fields; typically includes text, model, etc.", "fields": {} }
+  },
+  "modules": [
+    { "id": "base", "title": "Base Client and Models", "ast": "./base.ast.json" },
+    { "id": "images", "title": "Image Generation", "ast": "./images.ast.json" },
+    { "id": "text", "title": "Text Generation", "ast": "./text.ast.json" },
+    { "id": "chat", "title": "Chat Completion", "ast": "./chat.ast.json" },
+    { "id": "vision", "title": "Vision", "ast": "./vision.ast.json" },
+    { "id": "stt", "title": "Speech to Text", "ast": "./stt.ast.json" },
+    { "id": "feeds", "title": "Public Feeds (SSE)", "ast": "./feeds.ast.json" },
+    { "id": "client", "title": "PolliClient Composition", "ast": "./client.ast.json" }
+  ]
+}
+

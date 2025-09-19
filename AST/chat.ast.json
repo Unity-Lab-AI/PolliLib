@@ -1,0 +1,59 @@
+{
+  "module": "chat",
+  "python_module": "python/polliLib/chat.py",
+  "javascript_module": "javascript/polliLib/chat.js",
+  "entities": [
+    {
+      "name": "ChatMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "chat_completion",
+          "desc": "Non-streaming chat completion. Posts messages and returns assistant content or JSON.",
+          "python": {
+            "signature": "chat_completion(messages: List[Dict[str,str]], *, model: str = 'openai', seed: Optional[int] = None, private: Optional[bool] = None, referrer: Optional[str] = None, token: Optional[str] = None, as_json: bool = False, timeout: Optional[float] = 60.0) -> Any"
+          },
+          "javascript": {
+            "signature": "chat_completion(messages: Array<{role:string,content:string}>, {model='openai',seed=null,private_:undefined,referrer=null,token=null,asJson=false,timeoutMs=60000}={}) => Promise<any>"
+          },
+          "http": {"method": "POST", "url": "{text_prompt_base}/{model}", "body": "{model,messages,seed,private?,referrer?,token?}"},
+          "returns": [{"when": "as_json/asJson true", "type": "object"}, {"when": "else", "type": "string|undefined"}]
+        },
+        {
+          "name": "chat_completion_stream",
+          "desc": "Streaming chat completion via SSE.",
+          "python": {
+            "signature": "chat_completion_stream(messages: List[Dict[str,str]], *, model: str = 'openai', seed: Optional[int] = None, private: Optional[bool] = None, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 300.0, yield_raw_events: bool = False) -> Iterator[str]"
+          },
+          "javascript": {
+            "signature": "chat_completion_stream(messages: Array<{role:string,content:string}>, {model='openai',seed=null,private_:undefined,referrer=null,token=null,timeoutMs=300000,yieldRawEvents=false}={}) => AsyncIterable<string>"
+          },
+          "http": {"method": "POST", "headers": {"Accept": "text/event-stream"}},
+          "events": {
+            "line_filter": "lines starting with 'data:'",
+            "done": "[DONE]",
+            "payload": "OpenAI-style delta objects; yields content strings unless yieldRawEvents=true"
+          }
+        },
+        {
+          "name": "chat_completion_tools",
+          "desc": "Function-calling: tool specification is provided, model returns tool_calls; local functions executed and appended to history until completion or max_rounds.",
+          "python": {
+            "signature": "chat_completion_tools(messages: List[Dict[str,Any]], *, tools: List[Dict[str,Any]], functions: Optional[Dict[str,Callable[...,Any]]] = None, tool_choice: Any = 'auto', model: str = 'openai', seed: Optional[int] = None, private: Optional[bool] = None, referrer: Optional[str] = None, token: Optional[str] = None, as_json: bool = False, timeout: Optional[float] = 60.0, max_rounds: int = 1) -> Any"
+          },
+          "javascript": {
+            "signature": "chat_completion_tools(messages: Array<any>, {tools,functions={},tool_choice='auto',model='openai',seed=null,private_:undefined,referrer=null,token=null,asJson=false,timeoutMs=60000,max_rounds=1}={}) => Promise<any>"
+          },
+          "http": {"method": "POST", "url": "{text_prompt_base}/{model}", "body": "{model,messages,seed,tools,tool_choice,private?,referrer?,token?}"},
+          "tool_calls": {
+            "shape": "choices[0].message.tool_calls[] with function {name,arguments}",
+            "args": "JSON string or object",
+            "local_execution": "If a matching function exists, call and append a tool response {role:'tool',name,content}"
+          },
+          "termination": "No tool_calls or max_rounds reached"
+        }
+      ]
+    }
+  ]
+}
+

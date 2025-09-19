@@ -1,0 +1,41 @@
+{
+  "module": "feeds",
+  "python_module": "python/polliLib/feeds.py",
+  "javascript_module": "javascript/polliLib/feeds.js",
+  "entities": [
+    {
+      "name": "FeedsMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "image_feed_stream",
+          "desc": "Stream public image feed via SSE; optionally include fetched image bytes or data URL.",
+          "python": {
+            "signature": "image_feed_stream(*, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 300.0, reconnect: bool = False, retry_delay: float = 10.0, yield_raw_events: bool = False, include_bytes: bool = False, include_data_url: bool = False) -> Iterator[Any]"
+          },
+          "javascript": {
+            "signature": "image_feed_stream({referrer=null,token=null,timeoutMs=300000,reconnect=false,retryDelayMs=10000,yieldRawEvents=false,includeBytes=false,includeDataUrl=false}={}) => AsyncIterable<any>"
+          },
+          "http": {"method": "GET", "url": "https://image.pollinations.ai/feed", "headers": {"Accept": "text/event-stream"}},
+          "events": {
+            "payload": "JSON strings per 'data:' line; '[DONE]' terminates",
+            "augmentation": "Optionally attach image_bytes (binary) or image_data_url (base64 data URL)"
+          },
+          "reconnect": {"enabled": "when reconnect/reconnect=true", "delay": "retry_delay / retryDelayMs"}
+        },
+        {
+          "name": "text_feed_stream",
+          "desc": "Stream public text feed via SSE.",
+          "python": {
+            "signature": "text_feed_stream(*, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 300.0, reconnect: bool = False, retry_delay: float = 10.0, yield_raw_events: bool = False) -> Iterator[Any]"
+          },
+          "javascript": {
+            "signature": "text_feed_stream({referrer=null,token=null,timeoutMs=300000,reconnect=false,retryDelayMs=10000,yieldRawEvents=false}={}) => AsyncIterable<any>"
+          },
+          "http": {"method": "GET", "url": "https://text.pollinations.ai/feed", "headers": {"Accept": "text/event-stream"}}
+        }
+      ]
+    }
+  ]
+}
+

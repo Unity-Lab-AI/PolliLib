@@ -1,0 +1,26 @@
+{
+  "module": "stt",
+  "python_module": "python/polliLib/stt.py",
+  "javascript_module": "javascript/polliLib/stt.js",
+  "entities": [
+    {
+      "name": "STTMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "transcribe_audio",
+          "desc": "Speech-to-text via input_audio content in messages.",
+          "python": {
+            "signature": "transcribe_audio(audio_path: str, *, question: str = 'Transcribe this audio', model: str = 'openai-audio', provider: str = 'openai', referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 120.0) -> Optional[str]"
+          },
+          "javascript": {
+            "signature": "transcribe_audio(audioPath: string, {question='Transcribe this audio', model='openai-audio', provider='openai', referrer=null, token=null, timeoutMs=120000}={}) => Promise<string|null>"
+          },
+          "file_support": {"extensions": ["mp3","wav"], "else": "return null (unsupported)"},
+          "http": {"method": "POST", "url": "{text_prompt_base}/{provider}", "body": "OpenAI-like messages with input_audio {data,b64}"}
+        }
+      ]
+    }
+  ]
+}
+

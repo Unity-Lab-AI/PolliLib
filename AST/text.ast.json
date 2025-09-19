@@ -1,0 +1,35 @@
+{
+  "module": "text",
+  "python_module": "python/polliLib/text.py",
+  "javascript_module": "javascript/polliLib/text.js",
+  "entities": [
+    {
+      "name": "TextMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "generate_text",
+          "desc": "Generate text from a prompt via text endpoint, optionally as JSON.",
+          "python": {
+            "signature": "generate_text(prompt: str, *, model: str = 'openai', seed: Optional[int] = None, system: Optional[str] = None, referrer: Optional[str] = None, token: Optional[str] = None, as_json: bool = False, timeout: Optional[float] = 60.0) -> Any"
+          },
+          "javascript": {
+            "signature": "generate_text(prompt: string, {model='openai',seed=null,system=null,referrer=null,token=null,asJson=false,timeoutMs=60000}={}) => Promise<any>"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{text_prompt_base}/{prompt}",
+            "query": ["model","seed","json?","system?","referrer?","token?"]
+          },
+          "defaults": {"model": "openai", "seed": "random 5–8 digits", "as_json/asJson": false, "timeout": 60.0, "timeoutMs": 60000},
+          "returns": [
+            {"when": "as_json/asJson true and parse succeeds", "type": "object"},
+            {"when": "as_json/asJson true but parse fails", "type": "string"},
+            {"when": "as_json/asJson false", "type": "string"}
+          ]
+        }
+      ]
+    }
+  ]
+}
+

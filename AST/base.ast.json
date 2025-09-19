@@ -1,0 +1,66 @@
+{
+  "module": "base",
+  "python_module": "python/polliLib/base.py",
+  "javascript_module": "javascript/polliLib/base.js",
+  "entities": [
+    {
+      "name": "BaseClient",
+      "kind": "class",
+      "ctor": {
+        "python": {
+          "params": {
+            "text_url": {"type": "string", "default": "https://text.pollinations.ai/models"},
+            "image_url": {"type": "string", "default": "https://image.pollinations.ai/models"},
+            "image_prompt_base": {"type": "string", "default": "https://image.pollinations.ai/prompt"},
+            "text_prompt_base": {"type": "string", "default": "https://text.pollinations.ai"},
+            "timeout": {"type": "number", "units": "seconds", "default": 10.0},
+            "session": {"type": "requests.Session?", "default": null}
+          }
+        },
+        "javascript": {
+          "params": {
+            "textUrl": {"type": "string", "default": "https://text.pollinations.ai/models"},
+            "imageUrl": {"type": "string", "default": "https://image.pollinations.ai/models"},
+            "imagePromptBase": {"type": "string", "default": "https://image.pollinations.ai/prompt"},
+            "textPromptBase": {"type": "string", "default": "https://text.pollinations.ai"},
+            "timeoutMs": {"type": "number", "units": "milliseconds", "default": 10000},
+            "fetch": {"type": "function?", "default": "global fetch if available"}
+          }
+        }
+      },
+      "methods": [
+        {
+          "name": "list_models",
+          "desc": "List available models of a given kind ('text' or 'image').",
+          "python": {"signature": "list_models(kind: Literal['text','image']) -> List[Model]"},
+          "javascript": {"signature": "listModels(kind: 'text'|'image') => Promise<Model[]>"},
+          "http": {"method": "GET", "url": "text_url or image_url by kind"},
+          "returns": [{"type": "Model[]"}]
+        },
+        {
+          "name": "get_model_by_name",
+          "desc": "Find a model by exact name or alias (case-insensitive by default).",
+          "python": {"signature": "get_model_by_name(name: str, kind: Optional[Literal['text','image']] = None, include_aliases: bool = True, case_insensitive: bool = True) -> Optional[Model]"},
+          "javascript": {"signature": "getModelByName(name: string, {kind=null, includeAliases=true, caseInsensitive=true}={}) => Promise<Model|null>"}
+        },
+        {
+          "name": "get",
+          "static": true,
+          "desc": "Safe field getter for Model records.",
+          "python": {"signature": "get(model: Model, field: str, default: Any=None) -> Any"},
+          "javascript": {"signature": "static get(model, field, def=null)"}
+        },
+        {
+          "name": "refresh_cache",
+          "desc": "Clear cached model lists.",
+          "python": {"signature": "refresh_cache() -> None"},
+          "javascript": {"signature": "refreshCache(): void"}
+        },
+        {"name": "_random_seed", "desc": "Generate 5–8 digit random integer.", "python": {}, "javascript": {}},
+        {"name": "_image_prompt_url", "desc": "Build image prompt URL.", "python": {}, "javascript": {}},
+        {"name": "_text_prompt_url", "desc": "Build text prompt URL.", "python": {}, "javascript": {}}
+      ]
+    }
+  ]
+}
+

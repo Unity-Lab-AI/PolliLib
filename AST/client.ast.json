@@ -1,0 +1,20 @@
+{
+  "module": "client",
+  "python_module": "python/polliLib/client.py",
+  "javascript_module": "javascript/polliLib/client.js",
+  "entities": [
+    {
+      "name": "PolliClient",
+      "kind": "class",
+      "composition": {
+        "python": ["BaseClient", "ImageMixin", "TextMixin", "ChatMixin", "STTMixin", "VisionMixin", "FeedsMixin"],
+        "javascript": ["BaseClient", "ImagesMixin", "TextMixin", "ChatMixin", "STTMixin", "VisionMixin", "FeedsMixin"]
+      },
+      "facades": {
+        "python": "python/polliLib/__init__.py exposes top-level functions that forward to a default PolliClient instance.",
+        "javascript": "javascript/polliLib/index.js re-exports functions that forward to a singleton PolliClient instance."
+      }
+    }
+  ]
+}
+

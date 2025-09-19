@@ -1,0 +1,70 @@
+{
+  "module": "images",
+  "python_module": "python/polliLib/images.py",
+  "javascript_module": "javascript/polliLib/images.js",
+  "entities": [
+    {
+      "name": "ImageMixin",
+      "kind": "mixin",
+      "methods": [
+        {
+          "name": "generate_image",
+          "desc": "Generate an image from a text prompt using Pollinations image endpoint.",
+          "python": {
+            "signature": "generate_image(prompt: str, *, width: int = 512, height: int = 512, model: str = 'flux', seed: Optional[int] = None, nologo: bool = True, image: Optional[str] = None, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 300.0, out_path: Optional[str] = None, chunk_size: int = 65536) -> bytes | str"
+          },
+          "javascript": {
+            "signature": "generate_image(prompt: string, {width=512,height=512,model='flux',seed=null,nologo=true,image=null,referrer=null,token=null,timeoutMs=300000,outPath=null,chunkSize=65536}={}) => Promise<Buffer|string>"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{image_prompt_base}/{prompt}",
+            "query": ["width","height","seed","model","nologo","image?","referrer?","token?"],
+            "streaming": "If out_path/outPath is set, stream response bytes to file; else return bytes/Buffer"
+          },
+          "defaults": {
+            "width": 512,
+            "height": 512,
+            "model": "flux",
+            "seed": "random 5–8 digits when omitted",
+            "nologo": true,
+            "image": null,
+            "referrer": null,
+            "token": null,
+            "timeout": 300.0,
+            "timeoutMs": 300000,
+            "chunk_size": 65536,
+            "chunkSize": 65536
+          },
+          "returns": [
+            {"when": "no out_path/outPath", "type": "binary"},
+            {"when": "out_path/outPath set", "type": "path:string"}
+          ],
+          "errors": ["ValueError (invalid prompt/size)", "HTTP error status", "Timeout/Abort"]
+        },
+        {
+          "name": "save_image_timestamped",
+          "desc": "Convenience to save generated image to images/<UTC timestamp>.<ext>.",
+          "python": {
+            "signature": "save_image_timestamped(prompt: str, *, width: int = 512, height: int = 512, model: str = 'flux', nologo: bool = True, image: Optional[str] = None, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 300.0, images_dir: Optional[str] = None, filename_prefix: str = '', filename_suffix: str = '', ext: str = 'jpeg') -> str"
+          },
+          "javascript": {
+            "signature": "save_image_timestamped(prompt: string, {width=512,height=512,model='flux',nologo=true,image=null,referrer=null,token=null,timeoutMs=300000,imagesDir=null,filenamePrefix='',filenameSuffix='',ext='jpeg'}={}) => Promise<string>"
+          },
+          "behavior": "Creates images/ directory if needed; passes seed=null to force random seed; returns output path"
+        },
+        {
+          "name": "fetch_image",
+          "desc": "Fetch a remote image URL with optional referrer/token and either return bytes or save to file.",
+          "python": {
+            "signature": "fetch_image(image_url: str, *, referrer: Optional[str] = None, token: Optional[str] = None, timeout: Optional[float] = 120.0, out_path: Optional[str] = None, chunk_size: int = 65536) -> bytes | str"
+          },
+          "javascript": {
+            "signature": "fetch_image(imageUrl: string, {referrer=null,token=null,timeoutMs=120000,outPath=null,chunkSize=65536}={}) => Promise<Buffer|string>"
+          }
+        }
+      ]
+    }
+  ]
+}
+
