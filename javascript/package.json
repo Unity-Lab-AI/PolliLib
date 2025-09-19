@@ -1,0 +1,19 @@
+{
+  "name": "pollilib-js",
+  "version": "0.1.0",
+  "description": "Modular Pollinations client (JavaScript)",
+  "type": "module",
+  "main": "polliLib/index.js",
+  "exports": {
+    ".": "./polliLib/index.js"
+  },
+  "scripts": {
+    "test": "node --test javascript/tests"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["pollinations", "ai", "client"],
+  "license": "MIT"
+}
+
