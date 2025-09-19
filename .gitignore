@@ -117,3 +117,6 @@ docs/_build/
 
 # Temporary output directories
 tmp-*/
+
+# Local task notes (not versioned)
+NEXT_TASKS.txt

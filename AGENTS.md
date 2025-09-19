@@ -4,20 +4,34 @@ This document explains how agents (and contributors) should work in this reposit
 
 ## Prime Directive
 
-- Stage and commit your changes. Do not push. The maintainer handles pushes and remotes. If you want to mark a checkpoint, you may optionally create a tag.
+- Stage, commit, and push when ready. Pushing to GitHub is permitted for this project as long as authentication is configured (see “Pushing to GitHub”). You may also create tags for releases.
 - You are expected to act as the full lead developer when working in this codebase: make cohesive, well‑documented changes, keep the surface area stable, and ensure tests cover what you add or modify.
 
 ## Git Workflow
 
 - Commit policy:
-  - Only `git add` and `git commit`. Do not push.
-  - Keep commits focused and descriptive. Prefer imperative style (e.g., "Add X", "Fix Y").
-  - If a change spans multiple logical parts (e.g., Python + JS), either split commits or explain clearly in a single commit message.
-- Tags (optional):
-  - You may create lightweight or annotated tags to mark milestones, e.g., `v0.1.0-js-port-ready`.
-  - Do not push tags; the maintainer will publish tags.
+  - Use `git add` + `git commit` with focused, descriptive messages (imperative style: "Add X", "Fix Y").
+  - If a change spans multiple logical parts (e.g., Python + JS), split into logical commits or clearly explain scope in one message.
+- Tags and releases:
+  - Follow Semantic Versioning (MAJOR.MINOR.PATCH), e.g., `0.0.1`.
+  - Current project release: `1.0.0`.
+  - Create annotated tags for releases, e.g., `git tag -a v1.0.0 -m "v1.0.0"` and push tags when publishing.
 - Branches:
   - Work on the default branch unless a feature branch is explicitly requested.
+
+### Pushing to GitHub
+- Prerequisite: An accessible `GITHUB_TOKEN` must be present in the host machine’s environment (User or System environment variable).
+- Verify remote:
+  - `git remote -v` should show the GitHub repository (e.g., `https://github.com/Unity-Lab-AI/PolliLib.git`).
+  - If you need to set the remote with a token, you can use one of the following patterns:
+    - Unix shells: `git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/Unity-Lab-AI/PolliLib.git"`
+    - PowerShell: `git remote set-url origin "https://x-access-token:$env:GITHUB_TOKEN@github.com/Unity-Lab-AI/PolliLib.git"`
+- Push commits and tags:
+  - `git push origin main`
+  - `git push --tags`
+Notes:
+- Never echo or print the token. Avoid pasting tokens into logs or commit messages.
+- Standard Git credential helpers may also source `GITHUB_TOKEN`; if they are configured, a plain `git push` will work once the environment is present.
 
 ## Repository Layout
 
@@ -86,7 +100,12 @@ This document explains how agents (and contributors) should work in this reposit
 
 ## Versioning
 
-- The libraries expose `__version__` / `__version__`‑like constants. Increment judiciously when making externally‑visible changes. You may propose tags in commit messages; actual tag creation/publication is handled by the maintainer.
+- Use Semantic Versioning (https://semver.org): MAJOR.MINOR.PATCH.
+- Current release: `1.0.0`.
+- When releasing:
+  - Bump versions in both languages (Python `polliLib/__init__.py` `__version__`, JS `javascript/polliLib/index.js` `__version__`).
+  - Update `/AST/polli.ast.json` `library_version` if the public API changes.
+  - Commit, tag (e.g., `v1.0.0`), and push both commits and tags.
 
 ## Your Role
 
@@ -97,4 +116,3 @@ When operating in this repository, you act as the lead developer:
 - Favor safe defaults, offline tests, and clarity over cleverness.
 
 If you have questions about priorities or scope, document assumptions in commit messages and, where helpful, in short inline comments or README updates.
-
